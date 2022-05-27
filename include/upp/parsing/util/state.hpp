@@ -30,18 +30,18 @@ class State {
 
   ~State() {}
 
-  T& operator*() noexcept { return *m_ptr->ptr; }
-  const T& operator*() const noexcept { return *m_ptr->ptr; }
+  T& operator*() noexcept { return **m_ptr; }
+  const T& operator*() const noexcept { return **m_ptr; }
 
-  T* operator->() noexcept { return m_ptr->ptr; }
-  const T* operator->() const noexcept { return m_ptr->ptr; }
+  T* operator->() noexcept { return m_ptr->get(); }
+  const T* operator->() const noexcept { return m_ptr->get(); }
 
   template <class... Ts>
   void emplace(Ts&&... ts) {
-    m_ptr->ptr = std::make_unique<T>(std::forward<Ts>(ts)...);
+    *m_ptr = std::make_unique<T>(std::forward<Ts>(ts)...);
   }
 
-  void replace(T* ptr) { m_ptr->ptr = std::unique_ptr(ptr); }
+  void replace(T* ptr) { *m_ptr = std::unique_ptr<T>{ptr}; }
 
   size_t ref_count() const noexcept { return m_ptr.use_count(); }
 

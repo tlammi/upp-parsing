@@ -54,8 +54,11 @@ TEST(RefCount, Weak) {
   ASSERT_EQ(s.ref_count(), 1);
 }
 
+struct AbstractDefer {
+  virtual ~AbstractDefer() {}
+};
 template <class C>
-struct Defer {
+struct Defer : public AbstractDefer {
   Defer(C&& c) : c{std::forward<C>(c)} {}
   ~Defer() { c(); }
 
@@ -79,4 +82,32 @@ TEST(Dtor, Multiple) {
     u::State s3{s0};
   }
   ASSERT_EQ(counter, 1);
+}
+
+TEST(Dtor, Replace) {
+  int counter = 0;
+  {
+    u::State<AbstractDefer> s{new Defer{[&]() { ++counter; }}};
+    s.replace(new Defer{[&]() { counter += 2; }});
+    ASSERT_EQ(counter, 1);
+  }
+  ASSERT_EQ(counter, 3);
+}
+
+TEST(Emplace, Simple) {
+  struct A {
+    A(int a, int b) : a{a}, b{b} {}
+    int a;
+    int b;
+  };
+
+  {
+    u::State<A> s{new A{1, 2}};
+    ASSERT_EQ(s->a, 1);
+    ASSERT_EQ(s->b, 2);
+
+    s.emplace(100, 200);
+    ASSERT_EQ(s->a, 100);
+    ASSERT_EQ(s->b, 200);
+  }
 }
