@@ -4,86 +4,60 @@
 #include <utility>
 
 namespace upp::parsing::util {
-namespace detail {
-template <class T>
-struct Ctx {
-  Ctx() {}
-  Ctx(const Ctx&) = delete;
-  Ctx& operator=(const Ctx&) = delete;
-
-  Ctx(Ctx&&) = delete;
-  Ctx& operator=(Ctx&&) = delete;
-
-  ~Ctx() { delete ptr; }
-
-  T* ptr{nullptr};
-  size_t ref_count{0};
-};
-}  // namespace detail
 
 template <class T>
 class WeakState;
 
+/**
+ * Pointer type where data can be replaced and all owners see the change
+ *
+ * Implemented pretty much as a std::shared_ptr<std::unique_ptr<T>>
+ *
+ */
 template <class T>
 class State {
-  using Ctx = detail::Ctx<T>;
   friend class WeakState<T>;
 
  public:
-  State() : State(new Ctx) {}
-  State(T* ptr) : State(new Ctx) { m_ctx->ptr = ptr; }
+  State() : m_ptr{new std::unique_ptr<T>()} {}
+  State(T* ptr) : m_ptr{new std::unique_ptr<T>(ptr)} {}
 
-  State(const State& other) : m_ctx{other.m_ctx} { ++m_ctx->ref_count; }
-  State& operator=(const State& other) {
-    --m_ctx->ref_count;
-    if (!m_ctx->ref_count) delete m_ctx;
-    m_ctx = other.m_ctx;
-    ++m_ctx->ref_count;
-    return *this;
-  }
+  State(const State&) = default;
+  State& operator=(const State&) = default;
 
-  State(State&&) = delete;
-  State& operator=(State&&) = delete;
+  State(State&&) noexcept = default;
+  State& operator=(State&&) noexcept = default;
 
-  ~State() {
-    --m_ctx->ref_count;
-    if (!m_ctx->ref_count) delete m_ctx;
-  }
+  ~State() {}
 
-  T& operator*() noexcept { return *m_ctx->ptr; }
-  const T& operator*() const noexcept { return *m_ctx->ptr; }
+  T& operator*() noexcept { return *m_ptr->ptr; }
+  const T& operator*() const noexcept { return *m_ptr->ptr; }
 
-  T* operator->() noexcept { return m_ctx->ptr; }
-  const T* operator->() const noexcept { return m_ctx->ptr; }
+  T* operator->() noexcept { return m_ptr->ptr; }
+  const T* operator->() const noexcept { return m_ptr->ptr; }
 
   template <class... Ts>
   void emplace(Ts&&... ts) {
-    delete m_ctx->ptr;
-    m_ctx->ptr = new T{std::forward<Ts>(ts)...};
+    m_ptr->ptr = std::make_unique<T>(std::forward<Ts>(ts)...);
   }
 
-  void replace(T* ptr) {
-    delete m_ctx->ptr;
-    m_ctx->ptr = ptr;
-  }
+  void replace(T* ptr) { m_ptr->ptr = std::unique_ptr(ptr); }
 
-  size_t ref_count() const noexcept { return m_ctx->ref_count; }
+  size_t ref_count() const noexcept { return m_ptr.use_count(); }
 
  private:
-  State(Ctx* ctx) : m_ctx{ctx} { ++m_ctx->ref_count; }
-  Ctx* m_ctx;
+  State(std::shared_ptr<std::unique_ptr<T>>&& p) : m_ptr{std::move(p)} {}
+  std::shared_ptr<std::unique_ptr<T>> m_ptr;
 };
 
 template <class T>
 class WeakState {
-  using Ctx = detail::Ctx<T>;
-
  public:
-  WeakState(const State<T>& state) : m_ctx{state.m_ctx} {}
+  WeakState(const State<T>& state) : m_ptr{state.m_ptr} {}
 
-  State<T> lock() { return {m_ctx}; }
+  State<T> lock() { return {m_ptr.lock()}; }
 
  private:
-  Ctx* m_ctx;
+  std::weak_ptr<std::unique_ptr<T>> m_ptr;
 };
 }  // namespace upp::parsing::util
