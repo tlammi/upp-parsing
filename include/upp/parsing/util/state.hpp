@@ -55,6 +55,12 @@ class WeakState {
  public:
   WeakState(const State<T>& state) : m_ptr{state.m_ptr} {}
 
+  WeakState(const WeakState&) = default;
+  WeakState& operator=(const WeakState&) = default;
+
+  WeakState(WeakState&&) noexcept = default;
+  WeakState& operator=(WeakState&&) noexcept = default;
+
   State<T> lock() { return {m_ptr.lock()}; }
 
  private:
