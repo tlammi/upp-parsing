@@ -5,6 +5,7 @@
 #include <string_view>
 
 #include "upp/parsing/literal.hpp"
+#include "upp/parsing/nonterm.hpp"
 #include "upp/parsing/regex.hpp"
 #include "upp/parsing/term.hpp"
 #include "upp/parsing/types.hpp"
@@ -25,7 +26,13 @@ class Grammar {
     return {m_terms.back()};
   }
 
+  NonTerm<CharT> nonterminal() {
+    m_nonterms.emplace_back(new NonTermImpl<CharT>);
+    return m_nonterms.back();
+  }
+
  private:
   std::deque<util::State<TermImpl<CharT>>> m_terms{};
+  std::deque<util::State<NonTermImpl<CharT>>> m_nonterms{};
 };
 }  // namespace upp::parsing
