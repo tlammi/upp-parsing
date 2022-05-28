@@ -50,3 +50,30 @@ TEST(Literal, NoMatch) {
   auto t = g.lit("foo");
   test_no_match(t, "asdfasdfasdf");
 }
+
+TEST(Regex, Exact) {
+  p::Grammar g;
+  auto t = g.regex(R"(0|[1-9][0-9]*)");
+  test_extact(t, "0");
+  test_extact(t, "123456789");
+}
+
+TEST(Regex, Match) {
+  p::Grammar g;
+  auto t = g.regex(R"(0|[1-9][0-9]*)");
+  test_match(t, "0 0 0 0");
+  test_match(t, "12345 asfd");
+}
+
+TEST(Regex, TooShort) {
+  p::Grammar g;
+  auto t = g.regex(R"(0|[1-9][0-9]*)");
+  test_no_match(t, "");
+}
+
+TEST(Regex, NoMatch) {
+  p::Grammar g;
+  auto t = g.regex(R"(f+)");
+  test_no_match(t, " ffffffffff");
+  test_no_match(t, "asdfasdf");
+}
