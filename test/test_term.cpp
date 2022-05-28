@@ -4,15 +4,14 @@
 
 namespace p = upp::parsing;
 
-void test_extact(const p::Term<std::string_view>& t,
-                 std::string_view to_match) {
+void test_extact(const p::Term<char>& t, std::string_view to_match) {
   auto match = t.match(to_match);
   ASSERT_TRUE(match);
   ASSERT_EQ(match.token, to_match);
   ASSERT_EQ(match.rest, "");
 }
 
-void test_match(const p::Term<std::string_view>& t, std::string_view str) {
+void test_match(const p::Term<char>& t, std::string_view str) {
   auto match = t.match(str);
   ASSERT_TRUE(match);
   auto substr0 = str.substr(0, match.token.size());
@@ -21,7 +20,7 @@ void test_match(const p::Term<std::string_view>& t, std::string_view str) {
   ASSERT_EQ(match.rest, substr1);
 }
 
-void test_no_match(const p::Term<std::string_view>& t, std::string_view str) {
+void test_no_match(const p::Term<char>& t, std::string_view str) {
   auto match = t.match(str);
   ASSERT_FALSE(match);
   ASSERT_EQ(match.token, "");
