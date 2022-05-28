@@ -18,12 +18,14 @@ template <class CharT = char>
 class Grammar {
  public:
   Term<CharT> lit(String<CharT> str) {
-    m_terms.emplace_back(new Literal<CharT>(std::move(str)));
+    using Lit = Literal<CharT>;
+    m_terms.emplace_back(new TermHolder<CharT, Lit>{Lit(std::move(str))});
     return {m_terms.back()};
   }
 
   Term<CharT> regex(String<CharT> str) {
-    m_terms.emplace_back(new Regex<CharT>(std::move(str)));
+    using Re = Regex<CharT>;
+    m_terms.emplace_back(new TermHolder<CharT, Re>{Re(std::move(str))});
     return {m_terms.back()};
   }
 

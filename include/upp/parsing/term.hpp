@@ -24,6 +24,20 @@ class TermImpl {
   virtual MatchResult<CharT> match(StringView<CharT> view) const noexcept = 0;
 };
 
+template <class CharT, class T>
+class TermHolder final : public TermImpl<CharT> {
+ public:
+  TermHolder(T&& t) : m_t{std::move(t)} {}
+  TermHolder(const T& t) : m_t{t} {}
+
+  MatchResult<CharT> match(StringView<CharT> view) const noexcept override {
+    return m_t.match(view);
+  }
+
+ private:
+  T m_t;
+};
+
 template <class CharT>
 class Term {
  public:

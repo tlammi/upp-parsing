@@ -8,11 +8,11 @@
 namespace upp::parsing {
 
 template <class CharT>
-class Regex final : public TermImpl<CharT> {
+class Regex {
  public:
   Regex(String<CharT> s) : m_re{std::move(s)} {}
 
-  MatchResult<CharT> match(StringView<CharT> v) const noexcept override {
+  MatchResult<CharT> match(StringView<CharT> v) const noexcept {
     std::match_results<typename StringView<CharT>::const_iterator> match_result;
     bool found = std::regex_search(v.cbegin(), v.cend(), match_result, m_re,
                                    std::regex_constants::match_continuous);
