@@ -35,6 +35,13 @@ class NonTermImpl {
  public:
   NonTermImpl() {}
 
+  NonTermImpl& operator+=(Expansion<CharT>&& e) {
+    m_expansions.push_back(std::move(e));
+    return *this;
+  }
+
+  size_t expansion_count() const noexcept { return m_expansions.size(); }
+
  private:
   std::deque<Expansion<CharT>> m_expansions{};
 };
@@ -43,6 +50,12 @@ template <class CharT>
 class NonTerm {
  public:
   NonTerm(const util::State<NonTermImpl<CharT>>& impl) : m_impl{impl} {}
+
+  NonTerm& operator+=(Expansion<CharT>&& e) {
+    *m_impl += std::move(e);
+    return *this;
+  }
+  size_t expansion_count() const noexcept { return m_impl->expansion_count(); }
 
  private:
   util::State<NonTermImpl<CharT>> m_impl;

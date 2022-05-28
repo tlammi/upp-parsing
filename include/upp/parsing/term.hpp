@@ -32,6 +32,8 @@ class Term {
     return m_impl->match(v);
   }
 
+  const util::State<TermImpl<CharT>>& impl() const noexcept { return m_impl; }
+
  private:
   util::State<TermImpl<CharT>> m_impl;
 };

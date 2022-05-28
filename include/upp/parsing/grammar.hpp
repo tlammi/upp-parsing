@@ -6,6 +6,7 @@
 
 #include "upp/parsing/literal.hpp"
 #include "upp/parsing/nonterm.hpp"
+#include "upp/parsing/operators.hpp"
 #include "upp/parsing/regex.hpp"
 #include "upp/parsing/term.hpp"
 #include "upp/parsing/types.hpp"
