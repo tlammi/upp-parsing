@@ -24,11 +24,13 @@ class TermImpl {
   virtual MatchResult<CharT> match(StringView<CharT> view) const noexcept = 0;
 };
 
-template <class CharT, class T>
+template <class CharT, class T, class Cb = std::nullptr_t>
 class TermHolder final : public TermImpl<CharT> {
  public:
-  TermHolder(T&& t) : m_t{std::move(t)} {}
-  TermHolder(const T& t) : m_t{t} {}
+  TermHolder(T&& t, Cb&& cb = nullptr)
+      : m_t{std::move(t)}, m_cb{std::forward<Cb>(cb)} {}
+  TermHolder(const T& t, Cb&& cb = nullptr)
+      : m_t{t}, m_cb{std::forward<Cb>(cb)} {}
 
   MatchResult<CharT> match(StringView<CharT> view) const noexcept override {
     return m_t.match(view);
@@ -36,6 +38,7 @@ class TermHolder final : public TermImpl<CharT> {
 
  private:
   T m_t;
+  Cb m_cb{};
 };
 
 template <class CharT>
