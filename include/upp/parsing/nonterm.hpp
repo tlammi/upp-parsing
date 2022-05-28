@@ -57,6 +57,10 @@ class NonTerm {
   }
   size_t expansion_count() const noexcept { return m_impl->expansion_count(); }
 
+  const util::State<NonTermImpl<CharT>>& impl() const noexcept {
+    return m_impl;
+  }
+
  private:
   util::State<NonTermImpl<CharT>> m_impl;
 };

@@ -14,8 +14,13 @@
 
 namespace upp::parsing {
 
+template <class CharT>
+class Parser;
+
 template <class CharT = char>
 class Grammar {
+  friend class Parser<CharT>;
+
  public:
   template <class Cb = std::nullptr_t>
   Term<CharT> lit(String<CharT> str, Cb&& cb = nullptr) {
