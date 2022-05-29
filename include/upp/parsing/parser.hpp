@@ -7,6 +7,21 @@ namespace upp::parsing {
 
 namespace detail {
 
+template <class CharT>
+String<CharT> expansion_debug(const Expansion<CharT>& expansion) {
+  if (expansion.empty()) return "[]";
+  String<CharT> out{"[ "};
+  for (const auto& e : expansion) {
+    if (is_terminal(e)) {
+      out += to_terminal(e).lock()->name() + " ";
+    } else {
+      out += String<CharT>{to_non_terminal(e).lock()->name()} + " ";
+    }
+  }
+  out += "]";
+  return out;
+}
+
 /**
  * LL(1) check for checking if expansion matches the view
  *
@@ -21,6 +36,7 @@ bool ll1_check(const Ast<CharT>& a, StringView<CharT> view) {
   } else {
     util::State<NonTermImpl<CharT>> non_term = to_non_terminal(a).lock();
     for (const auto& exp : non_term->expansions()) {
+      std::cerr << "debug: " << expansion_debug(exp) << '\n';
       if (ll1_check(exp.front(), view)) return true;
     }
   }
@@ -31,21 +47,6 @@ template <class CharT>
 bool match_expansion(const Expansion<CharT>& expansion,
                      StringView<CharT> view) {
   return ll1_check(expansion.front(), view);
-}
-
-template <class CharT>
-String<CharT> expansion_debug(const Expansion<CharT>& expansion) {
-  if (expansion.empty()) return "[]";
-  String<CharT> out{"[ "};
-  for (const auto& e : expansion) {
-    if (is_terminal(e)) {
-      out += to_terminal(e).lock()->name() + " ";
-    } else {
-      out += "<nonterm> ";
-    }
-  }
-  out += "]";
-  return out;
 }
 
 }  // namespace detail

@@ -56,6 +56,28 @@ class Grammar {
     m_nonterms.emplace_back(new NonTermImpl<CharT>);
     return m_nonterms.back();
   }
+  NonTerm<CharT> nonterminal(StringView<CharT> name) {
+    m_nonterms.emplace_back(new NonTermImpl<CharT>{name});
+    return m_nonterms.back();
+  }
+
+  String<CharT> grammar_string() const {
+    std::stringstream ss;
+    for (const auto& nt : m_nonterms) {
+      for (const auto& exp : nt->expansions()) {
+        ss << nt->name() << "->";
+        for (const auto& e : exp) {
+          if (is_terminal(e)) {
+            ss << " " << to_terminal(e).lock()->name();
+          } else {
+            ss << " " << to_non_terminal(e).lock()->name();
+          }
+        }
+        ss << '\n';
+      }
+    }
+    return ss.str();
+  }
 
  private:
   std::deque<util::State<TermImpl<CharT>>> m_terms{};

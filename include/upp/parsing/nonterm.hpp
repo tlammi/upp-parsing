@@ -41,15 +41,27 @@ using ExpansionList = std::deque<Expansion<CharT>>;
 template <class CharT>
 class NonTermImpl {
  public:
+  NonTermImpl(StringView<CharT> name) : m_name{name} {}
   NonTermImpl() {}
 
   NonTermImpl& operator+=(Expansion<CharT>&& e) {
     m_expansions.push_back(std::move(e));
     return *this;
   }
+
+  NonTermImpl& operator+=(const Expansion<CharT>& e) {
+    m_expansions.push_back(e);
+    return *this;
+  }
   NonTermImpl& operator+=(const Term<CharT>& t) {
     m_expansions.emplace_back();
     m_expansions.back().push_back(t.impl());
+    return *this;
+  }
+
+  NonTermImpl& operator+=(const util::State<NonTermImpl<CharT>>& t) {
+    m_expansions.emplace_back();
+    m_expansions.back().push_back(t);
     return *this;
   }
 
@@ -59,7 +71,10 @@ class NonTermImpl {
     return m_expansions;
   }
 
+  StringView<CharT> name() const noexcept { return m_name; }
+
  private:
+  String<CharT> m_name{"<nonterminal>"};
   ExpansionList<CharT> m_expansions{};
 };
 
@@ -73,8 +88,18 @@ class NonTerm {
     return *this;
   }
 
+  NonTerm& operator+=(const Expansion<CharT>& e) {
+    *m_impl += e;
+    return *this;
+  }
+
   NonTerm& operator+=(const Term<CharT>& t) {
     *m_impl += t;
+    return *this;
+  }
+
+  NonTerm& operator+=(const NonTerm<CharT>& t) {
+    *m_impl += t.impl();
     return *this;
   }
 

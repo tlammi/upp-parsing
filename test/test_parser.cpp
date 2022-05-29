@@ -66,3 +66,56 @@ TEST(Parse, Recursion) {
   std::string_view input = "true false true false false false true";
   ASSERT_TRUE(p.parse(input));
 }
+
+TEST(Parse, Json) {
+  p::Grammar g;
+  auto value = g.nonterminal("value");
+  auto null = g.lit("null");
+  auto boolean = g.nonterminal("bool");
+  boolean += g.lit("true");
+  boolean += g.lit("false");
+  auto integer = g.regex("0|[0-9][1-9]*");
+  auto fpoint = g.regex(R"((0|[1-9][0-9]*)\.[0-9]+)");
+  auto string = g.regex(R"(".*?[^\\]")");
+  auto key_value = g.nonterminal("key_value");
+  auto obj_rest = g.nonterminal("obj_rest");
+  auto obj_rest2 = g.nonterminal("obj_rest2");
+  auto obj = g.nonterminal("obj");
+  auto arr = g.nonterminal("arr");
+  auto arr_rest = g.nonterminal("arr_rest");
+  auto arr_rest2 = g.nonterminal("arr_rest2");
+
+  value += null;
+  value += boolean;
+  value += fpoint;
+  value += integer;
+  value += string;
+  value += obj;
+  value += arr;
+
+  key_value += (string, g.lit(":"), value);
+  obj += (g.lit("{"), obj_rest);
+  obj_rest += g.lit("}");
+  obj_rest += (key_value, obj_rest2);
+  obj_rest2 += g.lit("}");
+  obj_rest2 += (g.lit(","), key_value, obj_rest2);
+
+  arr += (g.lit("["), arr_rest);
+  arr_rest += g.lit("]");
+  arr_rest += (value, arr_rest2);
+  arr_rest2 += g.lit("]");
+  arr_rest2 += (g.lit(","), value, arr_rest2);
+
+  p::Parser p{std::move(g), value};
+
+  std::string_view json = R"(
+      {
+        "hello": {
+            "text": "world"
+        },
+        "arr": ["this", "is", "a", "list", 0.0, true, false]
+      }
+  )";
+
+  ASSERT_TRUE(p.parse(json));
+}
