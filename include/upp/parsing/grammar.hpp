@@ -61,6 +61,13 @@ class Grammar {
     return m_nonterms.back();
   }
 
+  template <class T>
+  Term<CharT> custom_term(T&& t) {
+    m_terms.emplace_back(
+        new TermHolder<CharT, std::decay_t<T>>{std::forward<T>(t)});
+    return m_terms.back();
+  }
+
   String<CharT> grammar_string() const {
     std::stringstream ss;
     for (const auto& nt : m_nonterms) {

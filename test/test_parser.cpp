@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <fstream>
+
 #include "upp/parsing/parser.hpp"
 
 namespace p = upp::parsing;
@@ -117,5 +119,11 @@ TEST(Parse, Json) {
       }
   )";
 
-  ASSERT_TRUE(p.parse(json));
+  std::ifstream fs{"large.json"};
+  std::istream_iterator<char> begin{fs};
+  std::istream_iterator<char> end{};
+  std::string large{begin, end};
+
+  ASSERT_TRUE(p.parse(large));
+  // ASSERT_TRUE(p.parse(json));
 }

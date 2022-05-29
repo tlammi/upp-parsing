@@ -36,7 +36,7 @@ bool ll1_check(const Ast<CharT>& a, StringView<CharT> view) {
   } else {
     util::State<NonTermImpl<CharT>> non_term = to_non_terminal(a).lock();
     for (const auto& exp : non_term->expansions()) {
-      std::cerr << "debug: " << expansion_debug(exp) << '\n';
+      // std::cerr << "debug: " << expansion_debug(exp) << '\n';
       if (ll1_check(exp.front(), view)) return true;
     }
   }
@@ -63,17 +63,17 @@ class Parser {
     Expansion<CharT> expansion{util::WeakState{m_starting_nonterm}};
     while (!expansion.empty()) {
       while (!view.empty() && std::isspace(view.front())) view.remove_prefix(1);
-      std::cerr << "matching \"" << view << "\"\n";
-      std::cerr << detail::expansion_debug(expansion) << '\n';
+      // std::cerr << "matching \"" << view << "\"\n";
+      // std::cerr << detail::expansion_debug(expansion) << '\n';
       if (is_terminal(expansion.front())) {
         auto term = to_terminal(expansion.front()).lock();
         auto [success, token, rest] = term->match(view);
         if (success) {
           std::cerr << "match: " << token << '\n';
-          std::cerr << "left with: \"" << rest << "\"\n";
+          // std::cerr << "left with: \"" << rest << "\"\n";
           view = rest;
           expansion.pop_front();
-          std::cerr << "work queue size: " << expansion.size() << '\n';
+          // std::cerr << "work queue size: " << expansion.size() << '\n';
         } else {
           std::cerr << "mismatch\n";
           return false;
@@ -86,11 +86,14 @@ class Parser {
             expansion.pop_front();
             expansion.insert(expansion.begin(), exp.begin(), exp.end());
             match_found = true;
-            std::cerr << "non-terminal expansion found\n";
+            // std::cerr << "non-terminal expansion found\n";
             break;
           }
         }
-        if (!match_found) return false;
+        if (!match_found) {
+          std::cerr << "no match found: " << view.substr(0, 100) << '\n';
+          return false;
+        }
       }
     }
     return true;
