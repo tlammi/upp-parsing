@@ -10,7 +10,7 @@ namespace upp::parsing {
 template <class CharT>
 class Regex {
  public:
-  Regex(String<CharT> s) : m_re{std::move(s)} {}
+  Regex(String<CharT> s) : m_str{"re'" + s + "'"}, m_re{std::move(s)} {}
 
   MatchResult<CharT> match(StringView<CharT> v) const noexcept {
     std::match_results<typename StringView<CharT>::const_iterator> match_result;
@@ -22,7 +22,10 @@ class Regex {
     return {true, match_substr, rest_substr};
   }
 
+  String<CharT> name() const noexcept { return m_str; }
+
  private:
+  String<CharT> m_str{};
   std::basic_regex<CharT> m_re{};
 };
 }  // namespace upp::parsing

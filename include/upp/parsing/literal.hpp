@@ -20,6 +20,8 @@ class Literal {
     return {true, v.substr(0, m_str.size()), v.substr(m_str.size())};
   }
 
+  String<CharT> name() const noexcept { return "'" + m_str + "'"; }
+
  private:
   String<CharT> m_str;
 };

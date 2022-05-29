@@ -15,4 +15,9 @@ Expansion<CharT> operator,(Expansion<CharT>&& l, const Term<CharT>& r) {
   l.emplaceback(r.impl());
   return l;
 }
+
+template <class CharT>
+Expansion<CharT> operator,(const NonTerm<CharT>& l, const NonTerm<CharT>& r) {
+  return {l.impl(), r.impl()};
+}
 }  // namespace upp::parsing

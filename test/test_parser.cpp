@@ -51,3 +51,18 @@ TEST(Parse, Callback) {
   ASSERT_TRUE(true_called);
   ASSERT_TRUE(false_called);
 }
+
+TEST(Parse, Recursion) {
+  p::Grammar g;
+  auto boolean = g.nonterminal();
+  size_t true_count = 0;
+  size_t false_count = 0;
+  boolean += g.lit("true", [&](std::string_view) { ++true_count; });
+  boolean += g.lit("false", [&](std::string_view) { ++false_count; });
+  auto recursive = g.nonterminal();
+  recursive += (boolean, recursive);
+  recursive += g.null();
+  p::Parser p{std::move(g), recursive};
+  std::string_view input = "true false true false false false true";
+  ASSERT_TRUE(p.parse(input));
+}

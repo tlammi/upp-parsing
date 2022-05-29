@@ -33,6 +33,21 @@ bool match_expansion(const Expansion<CharT>& expansion,
   return ll1_check(expansion.front(), view);
 }
 
+template <class CharT>
+String<CharT> expansion_debug(const Expansion<CharT>& expansion) {
+  if (expansion.empty()) return "[]";
+  String<CharT> out{"[ "};
+  for (const auto& e : expansion) {
+    if (is_terminal(e)) {
+      out += to_terminal(e).lock()->name() + " ";
+    } else {
+      out += "<nonterm> ";
+    }
+  }
+  out += "]";
+  return out;
+}
+
 }  // namespace detail
 
 template <class CharT>
@@ -48,6 +63,7 @@ class Parser {
     while (!expansion.empty()) {
       while (!view.empty() && std::isspace(view.front())) view.remove_prefix(1);
       std::cerr << "matching \"" << view << "\"\n";
+      std::cerr << detail::expansion_debug(expansion) << '\n';
       if (is_terminal(expansion.front())) {
         auto term = to_terminal(expansion.front()).lock();
         auto [success, token, rest] = term->match(view);
@@ -69,6 +85,7 @@ class Parser {
             expansion.pop_front();
             expansion.insert(expansion.begin(), exp.begin(), exp.end());
             match_found = true;
+            std::cerr << "non-terminal expansion found\n";
             break;
           }
         }

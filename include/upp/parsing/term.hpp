@@ -22,6 +22,7 @@ class TermImpl {
   virtual ~TermImpl() {}
 
   virtual MatchResult<CharT> match(StringView<CharT> view) const noexcept = 0;
+  virtual String<CharT> name() const noexcept = 0;
 };
 
 template <class CharT, class T, class Cb = std::nullptr_t>
@@ -39,6 +40,8 @@ class TermHolder final : public TermImpl<CharT> {
     }
     return res;
   }
+
+  String<CharT> name() const noexcept override { return m_t.name(); }
 
  private:
   T m_t;

@@ -6,6 +6,7 @@
 
 #include "upp/parsing/literal.hpp"
 #include "upp/parsing/nonterm.hpp"
+#include "upp/parsing/null.hpp"
 #include "upp/parsing/operators.hpp"
 #include "upp/parsing/regex.hpp"
 #include "upp/parsing/term.hpp"
@@ -38,6 +39,11 @@ class Grammar {
     return {m_terms.back()};
   }
 
+  Term<CharT> null() {
+    using N = Null<CharT>;
+    m_terms.emplace_back(new TermHolder<CharT, N>{N{}});
+    return {m_terms.back()};
+  }
   NonTerm<CharT> nonterminal() {
     m_nonterms.emplace_back(new NonTermImpl<CharT>);
     return m_nonterms.back();
