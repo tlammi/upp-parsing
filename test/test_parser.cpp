@@ -61,7 +61,7 @@ TEST(Parse, Recursion) {
   boolean += g.lit("false", [&](std::string_view) { ++false_count; });
   auto recursive = g.nonterminal();
   recursive += (boolean, recursive);
-  recursive += g.null();
+  recursive += g.end();
   p::Parser p{std::move(g), recursive};
   std::string_view input = "true false true false false false true";
   ASSERT_TRUE(p.parse(input));

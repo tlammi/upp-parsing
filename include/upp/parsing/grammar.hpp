@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 
+#include "upp/parsing/end.hpp"
 #include "upp/parsing/literal.hpp"
 #include "upp/parsing/nonterm.hpp"
 #include "upp/parsing/null.hpp"
@@ -44,6 +45,13 @@ class Grammar {
     m_terms.emplace_back(new TermHolder<CharT, N>{N{}});
     return {m_terms.back()};
   }
+
+  Term<CharT> end() {
+    using E = End<CharT>;
+    m_terms.emplace_back(new TermHolder<CharT, E>{E{}});
+    return m_terms.back();
+  }
+
   NonTerm<CharT> nonterminal() {
     m_nonterms.emplace_back(new NonTermImpl<CharT>);
     return m_nonterms.back();
