@@ -33,7 +33,11 @@ class TermHolder final : public TermImpl<CharT> {
       : m_t{t}, m_cb{std::forward<Cb>(cb)} {}
 
   MatchResult<CharT> match(StringView<CharT> view) const noexcept override {
-    return m_t.match(view);
+    auto res = m_t.match(view);
+    if constexpr (!std::is_same_v<Cb, std::nullptr_t>) {
+      m_cb(res.token);
+    }
+    return res;
   }
 
  private:

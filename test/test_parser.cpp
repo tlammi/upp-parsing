@@ -30,3 +30,24 @@ TEST(Parse, Alternatives) {
   ASSERT_TRUE(p.parse("false"));
   ASSERT_FALSE(p.parse("tru"));
 }
+
+TEST(Parse, Callback) {
+  p::Grammar g;
+  auto two_booleans = g.nonterminal();
+  bool true_called = false;
+  bool false_called = false;
+  two_booleans += (g.lit("true",
+                         [&](std::string_view str) {
+                           EXPECT_EQ(str, "true");
+                           true_called = true;
+                         }),
+                   g.lit("false", [&](std::string_view str) {
+                     EXPECT_EQ(str, "false");
+                     false_called = true;
+                   }));
+
+  p::Parser p{std::move(g), two_booleans};
+  p.parse("true  false");
+  ASSERT_TRUE(true_called);
+  ASSERT_TRUE(false_called);
+}
