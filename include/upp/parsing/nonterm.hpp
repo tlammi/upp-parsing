@@ -47,6 +47,11 @@ class NonTermImpl {
     m_expansions.push_back(std::move(e));
     return *this;
   }
+  NonTermImpl& operator+=(const Term<CharT>& t) {
+    m_expansions.emplace_back();
+    m_expansions.back().push_back(t.impl());
+    return *this;
+  }
 
   size_t expansion_count() const noexcept { return m_expansions.size(); }
 
@@ -67,6 +72,12 @@ class NonTerm {
     *m_impl += std::move(e);
     return *this;
   }
+
+  NonTerm& operator+=(const Term<CharT>& t) {
+    *m_impl += t;
+    return *this;
+  }
+
   size_t expansion_count() const noexcept { return m_impl->expansion_count(); }
 
   const util::State<NonTermImpl<CharT>>& impl() const noexcept {
