@@ -18,17 +18,25 @@ template <class CharT>
 using Ast = StateVariant<TermImpl<CharT>, NonTermImpl<CharT>>;
 
 template <class CharT>
-const TermImpl<CharT>* to_terminal(const Ast<CharT>* a) {
-  return std::get<TermImpl<CharT>>(a);
+bool is_terminal(const Ast<CharT>& a) {
+  return std::holds_alternative<util::WeakState<TermImpl<CharT>>>(a);
 }
 
 template <class CharT>
-const TermImpl<CharT>* to_non_terminal(const Ast<CharT>* a) {
-  return std::get<NonTermImpl<CharT>>(a);
+util::WeakState<TermImpl<CharT>> to_terminal(const Ast<CharT>& a) {
+  return std::get<util::WeakState<TermImpl<CharT>>>(a);
+}
+
+template <class CharT>
+util::WeakState<NonTermImpl<CharT>> to_non_terminal(const Ast<CharT>& a) {
+  return std::get<util::WeakState<NonTermImpl<CharT>>>(a);
 }
 
 template <class CharT>
 using Expansion = std::deque<Ast<CharT>>;
+
+template <class CharT>
+using ExpansionList = std::deque<Expansion<CharT>>;
 
 template <class CharT>
 class NonTermImpl {
@@ -42,8 +50,12 @@ class NonTermImpl {
 
   size_t expansion_count() const noexcept { return m_expansions.size(); }
 
+  const ExpansionList<CharT>& expansions() const noexcept {
+    return m_expansions;
+  }
+
  private:
-  std::deque<Expansion<CharT>> m_expansions{};
+  ExpansionList<CharT> m_expansions{};
 };
 
 template <class CharT>

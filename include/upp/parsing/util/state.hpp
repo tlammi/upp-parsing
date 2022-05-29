@@ -45,6 +45,8 @@ class State {
 
   size_t ref_count() const noexcept { return m_ptr.use_count(); }
 
+  operator bool() const noexcept { return *m_ptr; }
+
  private:
   State(std::shared_ptr<std::unique_ptr<T>>&& p) : m_ptr{std::move(p)} {}
   std::shared_ptr<std::unique_ptr<T>> m_ptr;
