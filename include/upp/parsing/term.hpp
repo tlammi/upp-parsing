@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include <memory>
 #include <optional>
 
@@ -7,6 +8,8 @@
 #include "upp/parsing/util/state.hpp"
 
 namespace upp::parsing {
+
+constexpr size_t NO_MATCH = std::numeric_limits<size_t>::max();
 
 template <class CharT>
 struct MatchResult {
@@ -34,11 +37,18 @@ class TermHolder final : public TermImpl<CharT> {
       : m_t{t}, m_cb{std::forward<Cb>(cb)} {}
 
   MatchResult<CharT> match(StringView<CharT> view) const noexcept override {
-    auto res = m_t.match(view);
-    if constexpr (!std::is_same_v<Cb, std::nullptr_t>) {
-      m_cb(res.token);
+    size_t res = m_t.match(view);
+    if (res == NO_MATCH) {
+      return {false, "", view};
     }
-    return res;
+    auto match = view.substr(0, res);
+    auto rest = view.substr(res);
+
+    if constexpr (!std::is_same_v<Cb, std::nullptr_t>) {
+      m_cb(match);
+    }
+
+    return {true, match, rest};
   }
 
   String<CharT> name() const noexcept override { return m_t.name(); }

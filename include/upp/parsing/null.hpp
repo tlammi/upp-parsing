@@ -10,9 +10,7 @@ class Null {
  public:
   Null() {}
 
-  MatchResult<CharT> match(StringView<CharT> view) const noexcept {
-    return {true, "", view};
-  }
+  size_t match(StringView<CharT> view) const noexcept { return 0; }
 
   String<CharT> name() const { return "<null>"; }
 

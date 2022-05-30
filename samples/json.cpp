@@ -7,15 +7,15 @@ namespace p = upp::parsing;
 
 class StringTerminal {
  public:
-  p::MatchResult<char> match(std::string_view view) const noexcept {
-    if (view.empty() || view.front() != '"') return {false, "", view};
+  size_t match(std::string_view view) const noexcept {
+    if (view.empty() || view.front() != '"') return p::NO_MATCH;
     size_t idx = 1;
     while (true) {
-      if (idx >= view.size()) return {false, "", view};
+      if (idx >= view.size()) return p::NO_MATCH;
       if (view.at(idx) == '\\') {
         idx += 2;
       } else if (view.at(idx) == '"') {
-        return {true, view.substr(0, idx + 1), view.substr(idx + 1)};
+        return idx + 1;
       } else {
         ++idx;
       }

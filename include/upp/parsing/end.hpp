@@ -9,9 +9,9 @@ class End {
  public:
   End() {}
 
-  MatchResult<CharT> match(StringView<CharT> view) const noexcept {
-    if (view.empty()) return {true, "", view};
-    return {false, "", view};
+  size_t match(StringView<CharT> view) const noexcept {
+    if (view.empty()) return 0;
+    return NO_MATCH;
   }
 
   String<CharT> name() const { return "<end>"; }

@@ -119,11 +119,5 @@ TEST(Parse, Json) {
       }
   )";
 
-  std::ifstream fs{"large.json"};
-  std::istream_iterator<char> begin{fs};
-  std::istream_iterator<char> end{};
-  std::string large{begin, end};
-
-  ASSERT_TRUE(p.parse(large));
-  // ASSERT_TRUE(p.parse(json));
+  ASSERT_TRUE(p.parse(json));
 }
